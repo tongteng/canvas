@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="data.json"></script>
+  <script src="FileSaver.js"></script>
+  <script src="jquery.js"></script>
+  <script src="xlsx.full.min.js"></script>
+</head>
+<body>
+    <button onclick="downloadJson(result)">导出生成json文件</button>
+    <button onclick="downloadText(result)">导出生成文本</button>
+    <button onclick="downloadExl(result)">导出生成excel</button>
+
+    <ol style="font-size: 30px; color: red; margin-top: 100px;">
+        <li><a href="http://www.qqe2.com/jsontool/excel2json" target="blank">复制表格内容，点击这儿把表格转为JSON，记得在转的结果中的最前面加上 var data = </a></li>
+        <li>将转好的json全选复制，找到data.json，把刚刚复制的内容替代原本的内容，保存</li>
+        <li>刷新这个网页</li>
+        <li>点击导出生成excel按钮</li>
+    </ol>
+  <script>
+    let result = [];
+    // $(document).ready(function() {
+    //   $.ajax({
+    //     url: './data.json',
+    //     success: function(data) {
+    //       console.log(data);
+    //       data.forEach((item, index) => {
+    //         item.distance = GetDistance(item.x1, item.y1, item.x2, item.y2);
+    //         if (index == data.length - 1) {
+    //           result = data;
+    //         }
+    //       })
+    //     }
+    //   })
+    // })
+    $(document).ready(function() {
+      console.log(data);
+      data.forEach((item, index) => {
+        item.distance = GetDistance(item.x1, item.y1, item.x2, item.y2);
+        if (index == data.length - 1) {
+          result = data;
+        }
+      })
+    })
+    function GetDistance(lat1, lng1, lat2, lng2){
+        var radLat1 = lat1*Math.PI / 180.0;
+        var radLat2 = lat2*Math.PI / 180.0;
+        var a = radLat1 - radLat2;
+        var  b = lng1*Math.PI / 180.0 - lng2*Math.PI / 180.0;
+        var s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a/2),2) +
+        Math.cos(radLat1)*Math.cos(radLat2)*Math.pow(Math.sin(b/2),2)));
+        s = s *6378.137 ;// EARTH_RADIUS;
+        s = Math.round(s * 10000) / 10000;
+        return s;
+    }
+    // 导出JSON
+    function downloadJson(data) {
+        var blob = new Blob([JSON.stringify(data)], { type: "" });
+        saveAs(blob, "hello.json");
+    }
+    // 导出生成文本
+    function downloadText(data) {
+        var blob = new Blob([JSON.stringify(data)], { type: "text/plain;charset=utf-8" });
+        saveAs(blob, "hello.txt");
+    }
+    // 导出excel
+    function downloadExl(data, type) {
+        if (!data.length) {
+          alert('球等麻袋正在计算~');
+          return;
+        }
+        var keys = Object.keys(data[0]);
+        var firstRow = {};
+        keys.forEach(function (item) {
+            firstRow[item] = item;
+        });
+        data.unshift(firstRow);
+        var content = {};
+        // 把json格式的数据转为excel的行列形式
+        var sheetsData = data.map(function (item, rowIndex) {
+            return keys.map(function (key, columnIndex) {
+                return Object.assign({}, {
+                    value: item[key],
+                    position: (columnIndex > 25 ? getCharCol(columnIndex) : String.fromCharCode(65 + columnIndex)) + (rowIndex + 1),
+                });
+            });
+        }).reduce(function (prev, next) {
+            return prev.concat(next);
+        });
+
+        sheetsData.forEach(function (item, index) {
+            content[item.position] = { v: item.value };
+        });
+        //设置区域,比如表格从A1到D10,SheetNames:标题，
+        var coordinate = Object.keys(content);
+        var workBook = {
+            SheetNames: ["helloSheet"],
+            Sheets: {
+                "helloSheet": Object.assign({}, content, { "!ref": coordinate[0] + ":" + coordinate[coordinate.length - 1] }),
+            }
+        };
+        //这里的数据是用来定义导出的格式类型
+        var excelData = XLSX.write(workBook, { bookType: "xlsx", bookSST: false, type: "binary" });
+        var blob = new Blob([string2ArrayBuffer(excelData)], { type: "" });
+        saveAs(blob, "hello.xlsx");
+    }
+    //字符串转字符流
+    function string2ArrayBuffer(s) {
+        var buf = new ArrayBuffer(s.length);
+        var view = new Uint8Array(buf);
+        for (var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+        return buf;
+    }
+    // 将指定的自然数转换为26进制表示。映射关系：[0-25] -> [A-Z]。
+    function getCharCol(n) {
+        let temCol = "",
+            s = "",
+            m = 0
+        while (n > 0) {
+            m = n % 26 + 1
+            s = String.fromCharCode(m + 64) + s
+            n = (n - m) / 26
+        }
+        return s
+    }
+  </script>
+</body>
+</html>

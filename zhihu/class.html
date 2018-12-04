@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    function Person(){}
+    Person.prototype = {
+      // constructor: Person,
+      name: 'tongteng',
+      age: 18,
+      job: 'engineer',
+      friends: ['tt', 'zzz'],
+      sayName: function() {
+        console.log(this.name);
+      }
+    }
+    var person1 = new Person();
+    var person2 = new Person();
+    person1.friends.push('van');
+    console.log(person1.friends);
+    console.log(person2.friends);
+    person1.name = 'xx';
+    console.log(person1.name);
+    console.log(person2.name);
+    person1.job = 'joba';
+    person2.job = 'jobb';
+    console.log(person1.job);
+    console.log(person2.job);
+  </script>
+</body>
+</html>

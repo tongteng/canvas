@@ -60,8 +60,8 @@
     //   move(w, h) {
     //     this.mx = (this.x < 0 || this.x > w) ? -this.mx : this.mx;
     //     this.my = (this.y < 0 || this.y > h) ? -this.my : this.my;
-    //     this.x += this.mx / 2;
-    //     this.y += this.my / 2;
+    //     this.x += this.mx / 3;
+    //     this.y += this.my / 3;
     //   }
     // }
     
@@ -127,8 +127,8 @@
       ctx.clearRect(0, 0, w, h);
       circlesLen = circles.length;
       for (let i = 0; i < circlesLen; i ++) {
-        circles[i].move(w, h);
         circles[i].drawCircle(ctx);
+        circles[i].move(w, h);
         for (let j = i + 1; j < circlesLen; j ++) {
           circles[i].drawLine(ctx, circles[j]);
         }
